@@ -143,9 +143,14 @@ userSchema.methods.generateAccesToken = async function () {
       email: this.email,
       role: this.role,
     },
-    process.env.ACCESTOKEN_SECRET,
-    { expiresIn: process.env.ACCESTOKEN_EXPIRE }
+    process.env.ACCESSTOKEN_SECRET,
+    { expiresIn: process.env.ACCESSTOKEN_EXPIRE }
   );
+};
+
+// compare hash password
+userSchema.methods.compareHashPassword = async function (humanPass) {
+  return await bcrypt.compare(humanPass, this.password);
 };
 
 // generate RefreshToken  method
@@ -161,7 +166,7 @@ userSchema.methods.generateRefreshToken = async function () {
 
 // verify AccesToken Token
 userSchema.methods.verifyToken = function (token) {
-  return jwt.verify(token, process.env.ACCESTOKEN_SECRET);
+  return jwt.verify(token, process.env.ACCESSTOKEN_SECRET);
 };
 
 // verify RefreshToken Token

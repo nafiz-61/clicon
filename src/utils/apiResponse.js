@@ -1,6 +1,6 @@
 const apiResponse = class apiResponse {
   constructor(status, message, data) {
-    this.status = status >= 200 && status < 300 ? "error" : "OK";
+    this.status = status >= 200 && status < 300 ? "OK" : "error";
     this.statusCode = status || 500;
     this.message = message || "success";
     this.data = data;
