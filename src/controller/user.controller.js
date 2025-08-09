@@ -4,7 +4,10 @@ const { customError } = require("../utils/customError");
 const { asynchandler } = require("../utils/aynchandler");
 const { validateUser } = require("../validation/user.validation");
 const { emailSend } = require("../helpers/helper");
-const { RegistrationTemplate } = require("../template/template");
+const {
+  RegistrationTemplate,
+  resetPasswordEmailTemplate,
+} = require("../template/template");
 const crypto = require("crypto");
 
 // registration user
@@ -34,7 +37,7 @@ exports.registration = asynchandler(async (req, res) => {
   );
   await emailSend(email, template);
   user.resetPasswordOtp = randomNumber;
-  user.resetPasswordExpireTime = expireTime;
+  user.resetPasswordExpireTime = new Date(expiredTime);
   await user.save();
   apiResponse.sendSuccess(
     res,
@@ -74,6 +77,31 @@ exports.login = asynchandler(async (req, res) => {
     accessToken: accessToken,
     userName: user.firstName,
     email: user.email,
+  });
+});
+
+// email verification
+exports.emailVerification = asynchandler(async (req, res) => {
+  const { otp, email } = req.body;
+  if (!otp && !email) {
+    throw new customError(401, "Otp or email not found");
+  }
+  const findUser = await User.findOne({
+    $and: [
+      { email: email },
+      { resetPasswordOtp: otp },
+      { resetPasswordExpireTime: { $gt: Date.now() } },
+    ],
+  });
+  if (!findUser) {
+    throw new customError(401, "Otp or time expired try again ");
+  }
+  findUser.resetPasswordExpireTime = null;
+  findUser.resetPasswordOtp = null;
+  findUser.isEmailVerified = true;
+  apiResponse.sendSuccess(res, 200, "Email Verification Successfully", {
+    email: findUser.email,
+    firstName: findUser.firstName,
   });
 });
 

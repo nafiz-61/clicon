@@ -115,3 +115,76 @@ exports.RegistrationTemplate = (
 </html>
 `;
 };
+
+// reset password  email template
+exports.resetPasswordEmailTemplate = (
+  firstName,
+  verifyLink,
+  otp,
+  minutesLeft
+) => {
+  return `<html>
+    <head>
+      <meta charset="UTF-8" />
+      <title>Reset Your Password</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          padding: 20px;
+          color: #333;
+        }
+        .container {
+          max-width: 500px;
+          background-color: #fff;
+          margin: auto;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+          color: #2d89ef;
+        }
+        .otp {
+          font-size: 24px;
+          font-weight: bold;
+          color: #2d89ef;
+          margin: 20px 0;
+        }
+        .link-btn {
+          display: inline-block;
+          background-color: #2d89ef;
+          color: #fff !important;
+          padding: 10px 20px;
+          border-radius: 5px;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        .footer {
+          font-size: 12px;
+          color: #777;
+          margin-top: 20px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Hello ${firstName},</h2>
+        <p>We received a request to reset your password. You can reset it using the code below or the link provided.</p>
+        
+        <div class="otp">${otp}</div>
+        <p>This code will expire in <strong>${minutesLeft} minutes</strong>.</p>
+
+        <p>
+          <a href="${verifyLink} target=_blank" class="link-btn">Reset Password</a>
+        </p>
+
+        <p>If you did not request this, you can safely ignore this email. Your account will remain secure.</p>
+
+        <div class="footer">
+          &copy; ${new Date().getFullYear()} Your Company Name. All rights reserved.
+        </div>
+      </div>
+    </body>
+  </html>`;
+};
