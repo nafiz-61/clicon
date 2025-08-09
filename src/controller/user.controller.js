@@ -131,3 +131,31 @@ exports.forgotPassword = asynchandler(async (req, res) => {
   apiResponse.sendSuccess(res, 301, "Check your Email", null);
 });
 
+//reset password
+exports.resetPassword = asynchandler(async (req, res) => {
+  const { email, newPassword, confirmPassword } = req.body;
+  if (!email) {
+    throw new customError(401, "Email Missing");
+  }
+  if (!newPassword) {
+    throw new customError(401, "newPassword Missing");
+  }
+  if (!confirmPassword) {
+    throw new customError(401, "confirmPassword Missing");
+  }
+  if (newPassword !== confirmPassword) {
+    throw new customError(401, "newpassword and confirm password not match ");
+  }
+
+  //find the user
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new customError(401, "User not found");
+  }
+  user.password = newPassword;
+  user.resetPasswordExpireTime = null;
+  user.resetPasswordOtp = null;
+  await user.save();
+  apiResponse.sendSuccess(res, 200, "Password Reset Successfully", user);
+});
