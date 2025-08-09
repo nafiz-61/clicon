@@ -105,3 +105,29 @@ exports.emailVerification = asynchandler(async (req, res) => {
   });
 });
 
+// forgot password
+exports.forgotPassword = asynchandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw new customError(400, "Email Missing");
+  }
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    throw new customError(401, "User not found");
+  }
+
+  // otp generate
+  const otp = crypto.randomInt(100000, 999999);
+  const expiredTime = Date.now() + 10 * 60 * 1000;
+  const minutesLeft = Math.round((expiredTime - Date.now()) / 60000);
+  const verifyLink = `http://fron.com/resetpassword/${email}`;
+  const template = resetPasswordEmailTemplate(
+    user.firstName,
+    verifyLink,
+    otp,
+    minutesLeft
+  );
+  await emailSend(email, template);
+  apiResponse.sendSuccess(res, 301, "Check your Email", null);
+});
+
