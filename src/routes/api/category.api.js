@@ -3,4 +3,4 @@ const _ = express.Router();
 const categoryController = require("../../controller/category.controller");
 const { authGuard } = require("../../middleware/authGuard.middleware");
 
-_.route('/create-category').post
+_.route("/create-category").post;
