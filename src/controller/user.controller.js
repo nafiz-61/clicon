@@ -186,3 +186,13 @@ exports.logout = asynchandler(async (req, res) => {
   await findUser.save();
   apiResponse.sendSuccess(res, 200, "Logout Successfull", findUser);
 });
+
+//get me
+exports.getMe = asynchandler(async (req, res) => {
+  const id = req.user.id;
+  const findUser = await User.findById(id);
+  if (!findUser) {
+    throw new customError(401, "User not found");
+  }
+  apiResponse.sendSuccess(res, 200, "User Retrive Successfully", findUser);
+});

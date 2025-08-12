@@ -9,5 +9,6 @@ _.route("/verify-email").post(authController.emailVerification);
 _.route("/forgot-Password").post(authController.forgotPassword);
 _.route("/reset-password").post(authController.resetPassword);
 _.route("/logout").post(authGuard, authController.logout);
+_.route("/getme").get(authGuard, authController.getMe);
 
 module.exports = _;
