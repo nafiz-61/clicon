@@ -16,12 +16,12 @@ exports.registration = asynchandler(async (req, res) => {
   const { firstName, email, password } = value;
 
   // save the user info into database
-  const user = await new User({
+  const findUser = await new User({
     firstName,
     email,
     password,
   }).save();
-  if (!user) {
+  if (!findUser) {
     throw new customError(500, "Registration Failed Try again ");
   }
 
@@ -36,9 +36,9 @@ exports.registration = asynchandler(async (req, res) => {
     minutesLeft
   );
   await emailSend(email, template);
-  user.resetPasswordOtp = randomNumber;
-  user.resetPasswordExpireTime = new Date(expiredTime);
-  await user.save();
+  findUser.resetPasswordOtp = randomNumber;
+  findUser.resetPasswordExpireTime = new Date(expiredTime);
+  await findUser.save();
   apiResponse.sendSuccess(
     res,
     201,
@@ -54,16 +54,16 @@ exports.registration = asynchandler(async (req, res) => {
 exports.login = asynchandler(async (req, res) => {
   const value = await validateUser(req);
   const { email, phoneNumber, password } = value;
-  const user = await User.findOne({
+  const findUser = await User.findOne({
     $or: [{ email: email }, { phoneNumber: phoneNumber }],
   });
-  const passwordIsCorrect = await user.compareHashPassword(password);
+  const passwordIsCorrect = await findUser.compareHashPassword(password);
   if (!passwordIsCorrect) {
     throw new customError(400, "Your Password or Email incorrect");
   }
   // make a  access and refreshToken
-  const accessToken = await user.generateAccesToken();
-  const refreshToken = await user.generateRefreshToken();
+  const accessToken = await findUser.generateAccesToken();
+  const refreshToken = await findUser.generateRefreshToken();
   const isProduction = process.env.NODE_ENV === "production";
 
   res.cookie("refreshToken", refreshToken, {
@@ -73,10 +73,15 @@ exports.login = asynchandler(async (req, res) => {
     path: "/",
     maxAge: 15 * 24 * 60 * 60 * 1000,
   });
+
+  // now  save the refresh token into the db
+  findUser.refreshToken = refreshToken;
+  await findUser.save();
+
   apiResponse.sendSuccess(res, 200, "Login Successfull", {
     accessToken: accessToken,
-    userName: user.firstName,
-    email: user.email,
+    userName: findUser.firstName,
+    email: findUser.email,
   });
 });
 
@@ -158,4 +163,26 @@ exports.resetPassword = asynchandler(async (req, res) => {
   user.resetPasswordOtp = null;
   await user.save();
   apiResponse.sendSuccess(res, 200, "Password Reset Successfully", user);
+});
+
+// logout user
+exports.logout = asynchandler(async (req, res) => {
+  const findUser = await User.findById(req.user.id);
+
+  if (!findUser) {
+    throw new customError(404, "user not found");
+  }
+
+  //clear the cookies
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: isProduction ? true : false,
+    sameSite: "none",
+    path: "/",
+  });
+
+  // find the user
+  findUser.refreshToken = null;
+  await findUser.save();
+  apiResponse.sendSuccess(res, 200, "Logout Successfull", findUser);
 });

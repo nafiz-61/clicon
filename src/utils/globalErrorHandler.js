@@ -24,6 +24,7 @@ const productionResponse = (error, res) => {
     });
   } else {
     const statusCode = error.statusCode || 500;
+    console.error("🔴 UNEXPECTED ERROR:", error);
     return res.status(statusCode).json({
       status: "!OK",
       message: "Something went wrong. Please try again later!",
