@@ -4,3 +4,5 @@ const categoryController = require("../../controller/category.controller");
 const { authGuard } = require("../../middleware/authGuard.middleware");
 
 _.route("/create-category").post;
+
+module.exports = _;
