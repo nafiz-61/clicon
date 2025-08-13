@@ -5,5 +5,5 @@ const { validateCategory } = require("../validation/category.validation");
 const Category = require("../models/category.model");
 
 exports.createCategory = asynchandler(async (req, res) => {
-  await validateCategory(req);
+ await validateCategory(req);
 });
