@@ -9,6 +9,7 @@ const {
   resetPasswordEmailTemplate,
 } = require("../template/template");
 const crypto = require("crypto");
+const { log } = require("console");
 
 // registration user
 exports.registration = asynchandler(async (req, res) => {
@@ -195,4 +196,21 @@ exports.getMe = asynchandler(async (req, res) => {
     throw new customError(401, "User not found");
   }
   apiResponse.sendSuccess(res, 200, "User Retrive Successfully", findUser);
+});
+
+// refresh token
+exports.getRefreshToken = asynchandler(async (req, res) => {
+  const token = req.headers.cookie.replace("refreshToken=", "");
+  console.log(token);
+
+  if (!token) {
+    throw new customError("Token Not found");
+  }
+  const findUser = await User.findOne({ refreshToken: token });
+  const accessToken = findUser.generateAccesToken();
+  apiResponse.sendSuccess(res, 200, "refreshToken", {
+    accessToken: accessToken,
+    userName: findUser.firstName,
+    email: findUser.email,
+  });
 });
