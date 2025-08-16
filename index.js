@@ -12,8 +12,4 @@ DBconnection()
   .catch((error) => {
     console.log("Database connection error", error);
   });
-  
-
-
-
-  
+ 
