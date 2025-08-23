@@ -12,11 +12,3 @@ class customError extends Error {
 }
 
 module.exports = { customError };
-
-
-
-
-
-
-
-
