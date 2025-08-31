@@ -188,3 +188,4 @@ exports.resetPasswordEmailTemplate = (
     </body>
   </html>`;
 };
+
