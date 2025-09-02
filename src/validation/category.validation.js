@@ -54,13 +54,3 @@ exports.validateCategory = async (req) => {
     }
   }
 };
-
-
-
-
-
-
-
-
-
-
