@@ -22,12 +22,3 @@ exports.emailSend = async (email, template) => {
 
   console.log("Message sent:", info.messageId);
 };
-
-
-
-
-
-
-
-
-
