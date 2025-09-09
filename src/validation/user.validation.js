@@ -55,13 +55,3 @@ exports.validateUser = async (req) => {
     throw new customError(400, `User Validation Failed ${error}`);
   }
 };
-
-
-
-
-
-
-
-
-
-
