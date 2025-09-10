@@ -174,3 +174,4 @@ userSchema.methods.verifyRefreshToken = function (token) {
   return jwt.verify(token, process.env.REFRESHTOKEN_SECRET);
 };
 module.exports = mongoose.model("User", userSchema);
+
