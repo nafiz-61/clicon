@@ -7,3 +7,4 @@ const Category = require("../models/category.model");
 exports.createCategory = asynchandler(async (req, res) => {
  await validateCategory(req);
 });
+
