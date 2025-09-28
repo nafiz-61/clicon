@@ -3,6 +3,7 @@ exports.asyncHandler = (func) => {
     try {
       await func(req, res);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

@@ -61,22 +61,6 @@ subCategorySchema.pre("save", async function (next) {
   next();
 });
 
-const categoryPopulate = async function (next) {
-  this.populate({
-    path: "category",
-    select:'-discount'
-  });
-  next();
-};
-
-const sortSubCategory = async function (next) {
-  this.sort({ createdAt: -1 });
-  next();
-};
-
-subCategorySchema.pre("find", sortSubCategory, categoryPopulate);
-subCategorySchema.pre("findOne", categoryPopulate);
-
 module.exports =
   mongoose.model.Subcategory ||
   mongoose.model("Subcategory", subCategorySchema);

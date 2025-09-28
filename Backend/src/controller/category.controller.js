@@ -5,6 +5,7 @@ const { validateCategory } = require("../validation/category.validation");
 const categoryModel = require("../models/category.model");
 const { uploadImage, deleteImage } = require("../helpers/cloudinary");
 
+//create category
 exports.createCategory = asyncHandler(async (req, res) => {
   const value = await validateCategory(req);
   const assetsFile = await uploadImage(value?.image?.path);
@@ -23,7 +24,33 @@ exports.createCategory = asyncHandler(async (req, res) => {
 
 // get all category
 exports.getAllCategory = asyncHandler(async (req, res) => {
-  const allcategory = await categoryModel.find().sort({ createdAt: -1 });
+  // const allcategory = await categoryModel
+  //   .find()
+  //   .populate("subCategory")
+  //   .sort({ createdAt: -1 });
+
+  const allcategory = await categoryModel.aggregate([
+    {
+      $lookup: {
+        from: "subcategories",
+        localField: "subCategory",
+        foreignField: "_id",
+        as: "subCategory",
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        image: 1,
+        isActive: 1,
+        slug: 1,
+        subCategory: 1,
+      },
+    },
+    {
+      $sort: { createdAt: -1 },
+    },
+  ]);
   if (!allcategory) {
     throw new customError(501, "all category created failed");
   }
@@ -43,6 +70,7 @@ exports.singleaCategory = asyncHandler(async (req, res) => {
   }
   const category = await categoryModel
     .findOne({ slug })
+    .populate("subCategory")
     .select("-subCategory -createdAt -updatedAt");
   if (!category) {
     throw new customError(501, "category not found");
