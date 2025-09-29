@@ -45,3 +45,15 @@ exports.getSingleBrand = asyncHandler(async (req, res) => {
 
   apiResponse.sendSuccess(res, 200, "Brand created successfully", brand);
 });
+
+// // update brand
+// exports.updateBrand = asyncHandler(async (req, res) => {
+//   const { slug } = req.params;
+//   if (!slug) {
+//     throw new customError(401, "Slug not found");
+//   }
+//   const brand = await brandModel.findOne({ slug });
+//   if (!brand) {
+//     throw new customError(404, "Brand not found");
+//   }
+// });
