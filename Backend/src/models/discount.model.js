@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema, Types } = mongoose;
-const { slugify } = require("slugify");
+const { default: slugify } = require("slugify");
 
 const discountSchema = new Schema(
   {
@@ -56,7 +56,7 @@ const discountSchema = new Schema(
       ref: "product",
       default: null,
     },
-    idActive: {
+    isActive: {
       type: Boolean,
       default: true,
     },

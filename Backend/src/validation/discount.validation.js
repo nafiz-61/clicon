@@ -3,11 +3,11 @@ const { customError } = require("../utils/customError");
 
 // Define Discount Validation Schema
 const discountValidationSchema = Joi.object({
-  discountValidFrom: Joi.date().required().messages({
+  discountvalidFrom: Joi.date().required().messages({
     "date.base": "Discount start date must be a valid date.",
     "any.required": "Discount start date is required.",
   }),
-  discountValidTo: Joi.date().required().messages({
+  discountvalidTo: Joi.date().required().messages({
     "date.base": "Discount end date must be a valid date.",
     "any.required": "Discount end date is required.",
   }),
@@ -24,7 +24,7 @@ const discountValidationSchema = Joi.object({
     "number.base": "Discount amount must be a number.",
     "number.min": "Discount amount cannot be negative.",
   }),
-  discountValueByPercentance: Joi.number().min(0).max(100).messages({
+  discountValueByPerchentance: Joi.number().min(0).max(100).messages({
     "number.base": "Discount percentage must be a number.",
     "number.min": "Discount percentage cannot be negative.",
     "number.max": "Discount percentage cannot exceed 100.",
@@ -37,10 +37,6 @@ const discountValidationSchema = Joi.object({
         "Discount plan must be 'category', 'subCategory', 'product' or 'flat'.",
       "any.required": "Discount plan is required.",
     }),
-  category: Joi.string().optional(), // will be ObjectId in DB
-  subCategory: Joi.string().optional(),
-  product: Joi.string().optional(),
-  isActive: Joi.boolean().optional(),
 }).options({
   abortEarly: true,
   allowUnknown: true, // allows extra fields (like slug, timestamps, etc.)
@@ -60,16 +56,16 @@ exports.validateDiscount = async (req) => {
     }
 
     // Extra rule: at least one value must be > 0
-    if (
-      (!value.discountValueByAmount || value.discountValueByAmount <= 0) &&
-      (!value.discountValueByPercentance ||
-        value.discountValueByPercentance <= 0)
-    ) {
-      throw new customError(
-        400,
-        "You must provide either a valid discount amount or a discount percentage."
-      );
-    }
+    // if (
+    //   (!value.discountValueByAmount || value.discountValueByAmount <= 0) &&
+    //   (!value.discountValueByPercentance ||
+    //     value.discountValueByPercentance <= 0)
+    // ) {
+    //   throw new customError(
+    //     400,
+    //     "You must provide either a valid discount amount or a discount percentage."
+    //   );
+    // }
 
     return value;
   } catch (error) {

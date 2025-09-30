@@ -13,12 +13,12 @@ const subCategorySchema = new Schema(
     },
     category: {
       type: Types.ObjectId,
-      ref: "Category",
+      ref: "category",
       required: true,
     },
     discount: {
       type: Types.ObjectId,
-      ref: "Discount",
+      ref: "discount",
       default: null,
     },
     slug: {

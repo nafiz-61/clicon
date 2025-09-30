@@ -18,12 +18,12 @@ const categorySchema = new Schema(
     subCategory: [
       {
         type: Types.ObjectId,
-        ref: "SubCategory",
+        ref: "subCategory",
       },
     ],
     discount: {
       type: Types.ObjectId,
-      ref: "Discount",
+      ref: "discount",
     },
     isActive: {
       type: Boolean,
