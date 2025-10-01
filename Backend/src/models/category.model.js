@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { default: slugify } = require("slugify");
 const { Schema, Types } = mongoose;
+const { customError } = require("../utils/customError");
 
 const categorySchema = new Schema(
   {

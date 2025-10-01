@@ -78,20 +78,6 @@ discountSchema.pre("save", async function (next) {
   next();
 });
 
-discountSchema.pre("findOneAndUpdate", async function (next) {
-  const update = this.getUpdate();
-  console.log(update);
-  if (update.discountName) {
-    update.slug = await slugify(update.discountName, {
-      replacement: "-",
-      lower: true,
-      strict: true,
-    });
-    this.setUpdate(update);
-  }
-  // next();
-});
-
 // Check if slug already exists
 discountSchema.pre("save", async function (next) {
   const existingDiscount = await this.constructor.findOne({
@@ -107,6 +93,18 @@ discountSchema.pre("save", async function (next) {
     );
   }
 
+  next();
+});
+
+discountSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate();
+  if (update.discountName) {
+    update.slug = await slugify(update.discountName, {
+      replacement: "-",
+      lower: true,
+      strict: true,
+    });
+  }
   next();
 });
 
