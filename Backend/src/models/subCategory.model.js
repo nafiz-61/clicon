@@ -1,4 +1,3 @@
-const { string } = require("joi");
 const mongoose = require("mongoose");
 const { Schema, Types } = mongoose;
 const { default: slugify } = require("slugify");
@@ -60,6 +59,21 @@ subCategorySchema.pre("save", async function (next) {
   }
   next();
 });
+
+const categoryPopulate = async function (next) {
+  this.populate({
+    path: "category",
+  });
+  next();
+};
+
+const sortsubCategory = async function (next) {
+  this.sort({ createdAt: -1 });
+  next();
+};
+
+subCategorySchema.pre("find", sortsubCategory, categoryPopulate);
+subCategorySchema.pre("findOne", categoryPopulate);
 
 module.exports =
   mongoose.model.Subcategory ||
