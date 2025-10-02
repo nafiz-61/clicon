@@ -8,5 +8,16 @@ _.route("/create-product").post(
   upload.fields([{ name: "image", maxCount: 10 }]),
   productController.createProduct
 );
+_.route("/get-products").get(productController.getAllProduct);
+_.route("/single-product/:slug").get(productController.singleProduct);
+_.route("/update-productinfo/:slug").put(
+  productController.updateProductInfoBySlug
+);
+_.route("/update-productimage/:slug").put(
+  upload.fields([{ name: "image", maxCount: 10 }]),
+  productController.updateProductImagesBySlug
+);
+
+_.route("/delete-product/:slug").delete(productController.deleteProductBySlug);
 
 module.exports = _;
