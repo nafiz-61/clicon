@@ -59,18 +59,18 @@ const productSchema = new Schema(
     },
     category: {
       type: Types.ObjectId,
-      ref: "category",
+      ref: "Category",
       required: true,
     },
     subCategory: {
       type: Types.ObjectId,
-      ref: "subCategory",
+      ref: "SubCategory",
       default: null,
     },
     variant: [
       {
         type: Types.ObjectId,
-        ref: "variant",
+        ref: "Variant",
         default: null,
       },
     ],
@@ -84,7 +84,7 @@ const productSchema = new Schema(
     ],
     brand: {
       type: Types.ObjectId,
-      ref: "brand",
+      ref: "Brand",
       default: null,
     },
     sku: {
