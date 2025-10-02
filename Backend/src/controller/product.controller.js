@@ -155,6 +155,3 @@ exports.deleteProductBySlug = asyncHandler(async (req, res) => {
 
   apiResponse.sendSuccess(res, 200, "Product deleted successfully", product);
 });
-
-// filter proucts by category , brand
-exports
