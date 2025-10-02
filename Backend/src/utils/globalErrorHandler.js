@@ -2,6 +2,7 @@ require("dotenv").config();
 
 // development  response
 const development = (error, res) => {
+  console.log(error);
   const statusCode = error.statusCode || 500;
   return res.status(statusCode).json({
     statusCode: error.statusCode,
@@ -15,6 +16,7 @@ const development = (error, res) => {
 
 // production response
 const productionResponse = (error, res) => {
+  console.log(error);
   const statusCode = error.statusCode || 500;
   if (error.isOperationalError) {
     return res.status(statusCode).json({

@@ -37,6 +37,10 @@ const productSchema = new Schema(
       required: true,
       trim: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+    },
     description: {
       type: String,
       default: "",
@@ -105,7 +109,6 @@ const productSchema = new Schema(
     },
     availablityStatus: {
       type: Boolean,
-      default: "",
     },
     reviews: [reviewSchema],
     returnPolicy: {

@@ -114,9 +114,7 @@ exports.updateDiscount = asyncHandler(async (req, res) => {
 
   // finally update the discount
   const updatedDiscount = await discountModel.findOneAndUpdate(
-    {
-      _id: discount._id,
-    },
+    { _id: discount._id },
     value,
     { new: true }
   );
