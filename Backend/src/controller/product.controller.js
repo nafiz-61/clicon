@@ -155,3 +155,84 @@ exports.deleteProductBySlug = asyncHandler(async (req, res) => {
 
   apiResponse.sendSuccess(res, 200, "Product deleted successfully", product);
 });
+
+// filter product by category , brand
+exports.filterProducts = asyncHandler(async (req, res) => {
+  console.log(req.query);
+  const { category, subCategory, brand } = req.query;
+  let filterQuery = {};
+  if (category) {
+    filterQuery = { ...filterQuery, category: category };
+  }
+  if (subCategory) {
+    filterQuery = { ...filterQuery, subCategory: subCategory };
+  }
+  if (brand) {
+    filterQuery = { ...filterQuery, brand: brand };
+  } else {
+    filterQuery = {};
+  }
+
+  const products = await productModel.find({
+    $or: [
+      { ...filterQuery },
+      {
+        retailPrice: { $gte: Number(minPrice), $lte: Number(maxPrice) },
+      },
+    ],
+  });
+  if (!products) {
+    throw new customError(404, "products not found");
+  }
+  apiResponse.sendSuccess(res, 200, "Product fltered successfully", products);
+});
+
+// filter product by price range
+exports.filterPriceRange = asyncHandler(async (req, res) => {
+  const { minPrice, maxPrice } = req.query;
+  if (!minPrice || !maxPrice) {
+    throw new customError(401, "Min & Max price are requires");
+  }
+
+  const products = await productModel.find({
+    retailPrice: { $gte: Number(minPrice), $lte: Number(maxPrice) },
+  });
+  if (!products) {
+    throw new customError(401, "Products not found");
+  }
+  apiResponse.sendSuccess(res, 200, "Product fetched successfully", products);
+});
+
+// product pagination
+exports.productPagination = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const products = await productModel.find().skip(skip).limit(10);
+  const totalPage = (await productModel.countDocuments()) / limit;
+  if (!products) {
+    throw new customError(401, "Products not found");
+  }
+  apiResponse.sendSuccess(res, 200, "Products fetched successfully", {
+    page: Number(page),
+    limit: Number(limit),
+    products,
+    totalPage,
+  });
+});
+
+// search product by name or sku
+exports.searchProduct = asyncHandler(async (req, res) => {
+  const { name, sku } = req.query;
+  if (!name || !sku) {
+    throw new customError(401, "Name or sku missing");
+  }
+  const products = await productModel.find({
+    name: { $regex: name, $options: "i" },
+    sku: { $regex: sku, $options: "i" },
+  });
+
+  if (!products) {
+    throw new customError(401, "products not found");
+  }
+  apiResponse.sendSuccess(res, 201, "Products fetch successfully ", products);
+});
