@@ -12,12 +12,12 @@ const subCategorySchema = new Schema(
     },
     category: {
       type: Types.ObjectId,
-      ref: "category",
+      ref: "Category",
       required: true,
     },
     discount: {
       type: Types.ObjectId,
-      ref: "discount",
+      ref: "Discount",
       default: null,
     },
     slug: {
@@ -76,5 +76,5 @@ subCategorySchema.pre("find", sortsubCategory, categoryPopulate);
 subCategorySchema.pre("findOne", categoryPopulate);
 
 module.exports =
-  mongoose.model.Subcategory ||
-  mongoose.model("Subcategory", subCategorySchema);
+  mongoose.models.SubCategory ||
+  mongoose.model("SubCategory", subCategorySchema);
