@@ -45,6 +45,24 @@ exports.createProduct = asyncHandler(async (req, res) => {
 
 // get all product
 exports.getAllProduct = asyncHandler(async (req, res) => {
+  const { sort } = req.query;
+  let sortQuery = {};
+  if (sort == "date-descending") {
+    sortQuery = { createdAt: -1 };
+  } else if (sort == "date-ascending") {
+    sortQuery = { createdAt: 1 };
+  } else if (sort == "price-descending") {
+    sortQuery = { retailPrice: -1 };
+  } else if (sort == "price-ascending") {
+    sortQuery = { retailPrice: 1 };
+  } else if (sort == "alpha-descending") {
+    sortQuery = { name: -1 };
+  } else if (sort == "alpha-ascending") {
+    sortQuery = { name: 1 };
+  } else {
+    sortQuery = { createdAt: -1 };
+  }
+
   const products = await productModel
     .find()
     .sort({ createdAt: -1 })
@@ -159,16 +177,27 @@ exports.deleteProductBySlug = asyncHandler(async (req, res) => {
 // filter product by category , brand
 exports.filterProducts = asyncHandler(async (req, res) => {
   console.log(req.query);
-  const { category, subCategory, brand } = req.query;
+  const { category, subCategory, brand, minPrice, maxPrice, tag } = req.query;
   let filterQuery = {};
   if (category) {
     filterQuery = { ...filterQuery, category: category };
   }
+  if (brand) {
+    if (Array.isArray(brand)) {
+      filterQuery = { ...filterQuery, brand: { $in: brand } };
+    } else {
+      filterQuery = { ...filterQuery, brand: brand };
+    }
+  }
+  if (tag) {
+    if (Array.isArray(tag)) {
+      filterQuery = { ...filterQuery, tag: { $in: tag } };
+    } else {
+      filterQuery = { ...filterQuery, tag: tag };
+    }
+  }
   if (subCategory) {
     filterQuery = { ...filterQuery, subCategory: subCategory };
-  }
-  if (brand) {
-    filterQuery = { ...filterQuery, brand: brand };
   } else {
     filterQuery = {};
   }
