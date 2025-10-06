@@ -68,7 +68,8 @@ exports.getAllProduct = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .populate({ path: "category" })
     .populate({ path: "subCategory" })
-    .populate({ path: "brand" });
+    .populate({ path: "brand" })
+    .populate({ path: "variant" });
   if (!products) {
     throw new customError(401, "Products not found");
   }
