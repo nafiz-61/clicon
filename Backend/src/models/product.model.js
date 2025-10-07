@@ -24,6 +24,12 @@ const reviewSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    product: {
+      type: Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    image: [{}],
   },
   {
     timestamps: true,
