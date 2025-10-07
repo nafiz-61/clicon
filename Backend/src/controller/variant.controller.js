@@ -112,3 +112,47 @@ exports.deleteVariantImage = asyncHandler(async (req, res) => {
     variant
   );
 });
+
+// update variant info
+exports.updateVariantInfo = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  if (!slug) {
+    throw new customError(401, "Slug not found");
+  }
+  const existingVariant = await variantModel.findOne({ slug });
+  if (!existingVariant) {
+    throw new customError(404, "Variants not found");
+  }
+
+  // check product id is matched or not matched
+  const isMatched = existingVariant.product.toString() !== req.body.product;
+  const updateVariant = await variantModel.findOneAndUpdate(
+    { slug },
+    req.body,
+    { new: true }
+  );
+
+  if (!updateVariant) {
+    throw new customError(401, "variant not found");
+  }
+
+  if (isMatched) {
+    //remove variant id from old product
+    await productModel.findOneAndUpdate(
+      { _id: existingVariant.product },
+      { $pull: { variant: existingVariant._id } }
+    );
+    // add variant id to new product
+    await productModel.findOneAndUpdate(
+      { _id: req.body.product },
+      { $push: { variant: existingVariant._id } }
+    );
+  }
+
+  apiResponse.sendSuccess(
+    res,
+    200,
+    "Variant info updated sucessfully",
+    variant
+  );
+});
