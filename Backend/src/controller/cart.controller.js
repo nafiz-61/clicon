@@ -8,7 +8,8 @@ const couponModel = require("../models/coupon.model");
 const { validateCart } = require("../validation/cart.validation");
 
 //apply coupon
-exports.applyCoupon = async (totalPrice = 0, couponCode = "") => {
+exports.applyCoupon = async (totalPrice = 0, couponCode) => {
+  if (couponCode == null) return { finalAmount, discountinfo };
   try {
     let finalAmount = 0;
     let discountinfo = {};
@@ -80,15 +81,11 @@ exports.addtocart = asyncHandler(async (req, res) => {
   // check product info  into cart items array
   let findIndex = -1;
   if (productObj) {
-    findIndex = cart.items.findIndex(
-      (item) => item.product.toString() == product.toString()
-    );
+    findIndex = cart.items.findIndex((item) => item.product == product);
   }
 
   if (variantObj) {
-    findIndex = cart.items.findIndex(
-      (item) => item.variant.toString() == variant.toString()
-    );
+    findIndex = cart.items.findIndex((item) => item.variant == variant);
   }
 
   // update the product info into cart items
@@ -118,7 +115,7 @@ exports.addtocart = asyncHandler(async (req, res) => {
       totalQuantity: 0,
     }
   );
-  console.log(totalreductPrice);
+
   //if have coupon
 
   const { finalAmount, discountinfo } = await this.applyCoupon(
@@ -126,9 +123,8 @@ exports.addtocart = asyncHandler(async (req, res) => {
     coupon
   );
   // now update the cart model
-  console.log(finalAmount, discountinfo);
-  cart.discountType = discountinfo.discountType;
   cart.coupon = discountinfo.couponId;
+  cart.discountType = discountinfo.discountType;
   cart.discountValue = discountinfo.discountValue;
   cart.finalAmount = finalAmount;
   cart.totalQuantity = totalreductPrice.totalQuantity;
