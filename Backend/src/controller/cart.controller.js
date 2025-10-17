@@ -9,7 +9,7 @@ const { validateCart } = require("../validation/cart.validation");
 
 //apply coupon
 exports.applyCoupon = async (totalPrice = 0, couponCode) => {
-  if (couponCode == null) return { finalAmount, discountinfo };
+  if (couponCode == null) return { finalAmount: totalPrice, discountinfo: {} };
   try {
     let finalAmount = 0;
     let discountinfo = {};
@@ -123,11 +123,27 @@ exports.addtocart = asyncHandler(async (req, res) => {
     coupon
   );
   // now update the cart model
-  cart.coupon = discountinfo.couponId;
-  cart.discountType = discountinfo.discountType;
-  cart.discountValue = discountinfo.discountValue;
+  cart.coupon = discountinfo.couponId || null;
+  cart.discountType = discountinfo.discountType || null;
+  cart.discountValue = discountinfo.discountValue || null;
   cart.finalAmount = finalAmount;
   cart.totalQuantity = totalreductPrice.totalQuantity;
   await cart.save();
   apiResponse.sendSuccess(res, 201, "Add to cart successfully", cart);
+});
+
+// decrease quantity
+exports.decreaseQuantity = asyncHandler(async (req, res) => {
+  const userid = req.userid || req.body.userid;
+  const { guestId, cartItemId } = req.body;
+  if (!cartItemId) {
+    throw new customError(401, "Cart item id missing");
+  }
+  const query = userid ? { user: userid } : { guestId: guestId };
+  const cart = await cartModel.findOne(query);
+  const targetItem = cart.items.findIndex((item) => item._id == cartItemId);
+  if (targetItem.quantity > 1) {
+    targetItem.quantity -= 1;
+    targetItem.totalPrice = targetItem.price * targetItem.quantity;
+  }
 });
