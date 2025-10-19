@@ -6,6 +6,7 @@ const productModel = require("../models/product.model");
 const variantModel = require("../models/variant.model");
 const couponModel = require("../models/coupon.model");
 const { validateCart } = require("../validation/cart.validation");
+const { getIo } = require("../socket/server");
 
 //apply coupon
 exports.applyCoupon = async (totalPrice = 0, couponCode) => {
@@ -129,6 +130,11 @@ exports.addtocart = asyncHandler(async (req, res) => {
   cart.finalAmount = finalAmount;
   cart.totalQuantity = totalreductPrice.totalQuantity;
   await cart.save();
+  const io = getIo();
+  io.to("123").emit("cart", {
+    message: " product added to cart",
+    cart: cart,
+  });
   apiResponse.sendSuccess(res, 201, "Add to cart successfully", cart);
 });
 
@@ -141,9 +147,119 @@ exports.decreaseQuantity = asyncHandler(async (req, res) => {
   }
   const query = userid ? { user: userid } : { guestId: guestId };
   const cart = await cartModel.findOne(query);
-  const targetItem = cart.items.findIndex((item) => item._id == cartItemId);
-  if (targetItem.quantity > 1) {
-    targetItem.quantity -= 1;
-    targetItem.totalPrice = targetItem.price * targetItem.quantity;
+  const index = cart.items.findIndex((item) => item._id == cartItemId);
+  const cartItem = cart.items[index];
+  if (cartItem.quantity > 1) {
+    cartItem.quantity -= 1;
+    cartItem.totalPrice = cartItem.price * cartItem.quantity;
   }
+
+  const totalreductPrice = cart.items.reduce(
+    (acc, item) => {
+      acc.totalPrice += item.totalPrice;
+      acc.totalQuantity += item.quantity;
+      return acc;
+    },
+    {
+      totalPrice: 0,
+      totalQuantity: 0,
+    }
+  );
+
+  cart.finalAmount = totalreductPrice.totalPrice;
+  cart.totalQuantity = totalreductPrice.totalQuantity;
+  await cart.save();
+  const io = getIo();
+  io.to("123").emit("cart", {
+    message: "cart item decreased",
+    cart: cart,
+  });
+  apiResponse.sendSuccess(res, 201, "cart item decreased successfully", cart);
+});
+
+// increase quantity
+exports.increaseQuantity = asyncHandler(async (req, res) => {
+  const userid = req.userid || req.body.userid;
+  const { guestId, cartItemId } = req.body;
+  if (!cartItemId) {
+    throw new customError(401, "Cart item id missing");
+  }
+  const query = userid ? { user: userid } : { guestId: guestId };
+  const cart = await cartModel.findOne(query);
+  const index = cart.items.findIndex((item) => item._id == cartItemId);
+  const cartItem = cart.items[index];
+  if (cartItem.quantity > 0) {
+    cartItem.quantity += 1;
+    cartItem.totalPrice = cartItem.price * cartItem.quantity;
+  }
+
+  const totalreductPrice = cart.items.reduce(
+    (acc, item) => {
+      acc.totalPrice += item.totalPrice;
+      acc.totalQuantity += item.quantity;
+      return acc;
+    },
+    {
+      totalPrice: 0,
+      totalQuantity: 0,
+    }
+  );
+
+  cart.finalAmount = totalreductPrice.totalPrice;
+  cart.totalQuantity = totalreductPrice.totalQuantity;
+  await cart.save();
+  const io = getIo();
+  io.to("123").emit("cart", {
+    message: "cart item increased",
+    cart: cart,
+  });
+  apiResponse.sendSuccess(res, 201, "cart item increased successfully", cart);
+});
+
+// delete item
+exports.deleteCartItem = asyncHandler(async (req, res) => {
+  const userId = req.userId || req.body.userId;
+  const { guestId, cartItemId } = req.body;
+
+  if (!cartItemId) {
+    throw new customError(401, "Cart item id missing");
+  }
+
+  const query = userId ? { user: userId } : { guestId };
+
+  const cart = await cartModel.findOneAndUpdate(
+    query,
+    { $pull: { items: { _id: cartItemId } } },
+    { new: true }
+  );
+
+  if (!cart) {
+    throw new customError(404, "Cart not found");
+  }
+
+  if (cart.items.length === 0) {
+    await cartModel.deleteOne({ _id: cart._id });
+    apiResponse.sendSuccess(res, 201, "Cart deleted successfully", cart);
+  }
+
+  // calculate total price and quantity
+  const totals = cart.items.reduce(
+    (acc, item) => {
+      acc.totalPrice += item.totalPrice;
+      acc.totalQuantity += item.quantity;
+      return acc;
+    },
+    { totalPrice: 0, totalQuantity: 0 }
+  );
+
+  cart.finalAmount = totals.totalPrice;
+  cart.totalQuantity = totals.totalQuantity;
+  await cart.save();
+  const io = getIo();
+  io.to("123").emit("cart", {
+    message: "cart item deleted",
+    cart: cart,
+  });
+
+  apiResponse.sendSuccess(res, 201, "Cart item deleted successfully", cart);
 });
