@@ -5,9 +5,20 @@ const orderModel = require("../models/order.model");
 const { validateOrder } = require("../validation/order.validation");
 const cartModel = require("../models/cart.model");
 const productModel = require("../models/product.model");
+const variantModel = require("../models/variant.model");
+const deliveryChargeModel = require("../models/deliveryCharge.model");
+
+//apply delivery charge
+const applyDeliveryCharge = async (dcId) => {
+  const charge = await deliveryChargeModel.findById(dcId);
+  if (!charge) {
+    throw new customError(400, "Invalid delivery charge option");
+  }
+  return charge;
+};
 
 // create order
-exports.createOrder = asyncHandler(async (req, res, next) => {
+exports.createOrder = asyncHandler(async (req, res) => {
   const { user, guestId, shippingInfo, deliveryCharge, paymentMethod } =
     await validateOrder(req);
   const query = user ? { user } : { guestId };
@@ -16,5 +27,44 @@ exports.createOrder = asyncHandler(async (req, res, next) => {
     .populate("items.product")
     .populate("items.variant")
     .populate("coupon");
-  console.log(cart);
+
+  // now decrease the stock of products
+  const stockAdjustPromise = [];
+  for (let item of cart.items) {
+    if (item.product) {
+      stockAdjustPromise.push(
+        productModel.findOneAndUpdate(
+          { _id: item.product._id },
+          { $inc: { stock: -item.quantity, totalSales: item.quantity } },
+          { new: true }
+        )
+      );
+    }
+
+    if (item.variant) {
+      stockAdjustPromise.push(
+        variantModel.findOneAndUpdate(
+          { _id: item.variant._id },
+          { $inc: { stockVariant: -item.quantity, totalSales: item.quantity } },
+          { new: true }
+        )
+      );
+    }
+  }
+
+  // make a order
+  let order = null;
+  order = new orderModel({
+    user: user,
+    guestId: guestId,
+    items: cart.items,
+    shippingInfo: shippingInfo,
+    deliveryCharge: deliveryCharge,
+  });
+
+  // apply delivery charge
+  const { name, charge } = await applyDeliveryCharge(deliveryCharge);
+  order.finalAmount = Math.round(cart.finalAmount + charge);
+  order.discountAmount = cart.discountValue;
+  order.shippingInfo.deliveryZone = name;
 });
