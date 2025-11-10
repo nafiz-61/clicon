@@ -178,6 +178,10 @@ const productSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    totalSales: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
