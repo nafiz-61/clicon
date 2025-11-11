@@ -60,6 +60,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
     items: cart.items,
     shippingInfo: shippingInfo,
     deliveryCharge: deliveryCharge,
+    paymentMethod,
   });
 
   // apply delivery charge
@@ -67,4 +68,10 @@ exports.createOrder = asyncHandler(async (req, res) => {
   order.finalAmount = Math.round(cart.finalAmount + charge);
   order.discountAmount = cart.discountValue;
   order.shippingInfo.deliveryZone = name;
+
+  // payment status
+  if (paymentMethod === "cod") {
+    order.paymentMethod = "cod";
+    order.paymentStatus = "pending";
+  }
 });
