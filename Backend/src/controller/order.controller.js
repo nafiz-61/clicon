@@ -7,6 +7,7 @@ const cartModel = require("../models/cart.model");
 const productModel = require("../models/product.model");
 const variantModel = require("../models/variant.model");
 const deliveryChargeModel = require("../models/deliveryCharge.model");
+const crypto = require("crypto");
 
 //apply delivery charge
 const applyDeliveryCharge = async (dcId) => {
@@ -69,9 +70,16 @@ exports.createOrder = asyncHandler(async (req, res) => {
   order.discountAmount = cart.discountValue;
   order.shippingInfo.deliveryZone = name;
 
+  const transactionid = `INV-${crypto
+    .randomUUID()
+    .split("-")[0]
+    .toLocaleUpperCase()}`;
   // payment status
   if (paymentMethod === "cod") {
     order.paymentMethod = "cod";
     order.paymentStatus = "pending";
+    order.transactionId = transactionid;
+    order.orderStatus = "pending";
+    
   }
 });
