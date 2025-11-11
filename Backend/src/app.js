@@ -29,8 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("public"));
 
-app.get("/health", (req, res) => res.status(200).send("OK"));
-app.get("/", (req, res) => res.status(200).send("✅ Server is live on Render"));
+
 
 // Routes
 app.use("/api/v1", require("./routes/index"));
