@@ -15,11 +15,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.emailSend = async (email, template) => {
+exports.emailSend = async (
+  email,
+  template,
+  subject = "Confirm Registration"
+) => {
   const info = await transporter.sendMail({
     from: '"Clicon',
     to: email,
-    subject: "Confirm Registration",
+    subject,
     html: template, // HTML body
   });
 
