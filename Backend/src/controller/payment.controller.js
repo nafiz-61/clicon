@@ -53,5 +53,5 @@ exports.cancelPayment = asyncHandler(async (req, res) => {
 //ipn
 exports.ipnPayment = asyncHandler(async (req, res) => {
   console.log(req.body);
-  res.status(200).json({ message: "IPN received" });
+  apiResponse.sendSuccess(req, res, 200, "IPN received", req.body);
 });
