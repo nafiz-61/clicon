@@ -29,7 +29,7 @@ const orderSchema = new Schema(
     // DELIVERY CHARGE
     deliveryCharge: {
       type: mongoose.Types.ObjectId,
-      ref: "deliveryCharge",
+      ref: "DeliveryCharge",
     },
 
     discountAmount: {
@@ -72,7 +72,6 @@ const orderSchema = new Schema(
     // ORDER STATUS
     orderStatus: {
       type: String,
-
       default: "Pending",
     },
 

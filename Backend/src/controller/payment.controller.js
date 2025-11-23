@@ -2,21 +2,30 @@ const { apiResponse } = require("../utils/apiResponse");
 const { customError } = require("../utils/customError");
 const { asyncHandler } = require("../utils/asynchandler");
 const orderModel = require("../models/order.model");
+const SSLCommerzPayment = require("sslcommerz-lts");
+
+const store_id = process.env.SSCL_STORE_ID;
+const store_passwd = process.env.SSCL_STORE_PASSWORD;
+const is_live = process.env.NODE_ENV == "development" ? false : Boolean(true);
 
 //success
 exports.successPayment = asyncHandler(async (req, res) => {
-  console.log(req.body);
+  const { val_id } = req.body;
 
-  const { tran_id, status } = req.body;
+  const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+  const validationData = await sslcz.validate({ val_id });
+
+  const { status, tran_id } = validationData;
   await orderModel.findOneAndUpdate(
     { transactionId: tran_id },
     {
       paymentStatus: status == "VALID" && "success",
       transactionId: tran_id,
-      paymentGatewayData: req.body,
+      paymentGatewayData: validationData,
+      orderStatus: "Confirmed",
     }
   );
-  return res.redirect("https://v0.app/t/FlJtkO7jKt3");
+  apiResponse.sendSuccess(res, 200, "Payment successful", null);
 });
 
 //failed
