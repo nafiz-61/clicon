@@ -4,7 +4,7 @@ const { Schema, Types } = mongoose;
 const bcrypt = require("bcrypt");
 const { customError } = require("../utils/customError");
 const jwt = require("jsonwebtoken");
-const { string } = require("joi");
+const { string, ref } = require("joi");
 
 const userSchema = new Schema({
   firstName: {
@@ -52,6 +52,7 @@ const userSchema = new Schema({
   role: {
     type: Types.ObjectId,
     ref: "Role",
+    default: null,
   },
   permission: {
     type: Types.ObjectId,
